@@ -1,6 +1,10 @@
 // TODO: this doesn't seem like the right way to scope this
 var t;
-var lineleader = 'weee $ '
+var lineleader = 'browser$ '
+
+var fileSystem = {
+	cwd: '/',
+};
 
 var commands = {
 
@@ -14,12 +18,66 @@ var commands = {
 			v = v.substring(0, v.length-1); // oh noooo
 		}
 		t.value += '\n';
-		t.value += v;
-		t.newline;
+		t.write(v)
+	},
+
+	pwd: function(args) {
+		t.write('\nError: filesystem not implemented.');
+	},
+	ls: function(args) {
+		t.write('\nError: filesystem not implemented.');
+	},
+	cd: function(args) {
+		t.write('\nError: filesystem not implemented.');
+	},
+	cat: function(args) {
+		t.write('\nError: filesystem not implemented.');
+	},
+	touch: function(args) {
+		t.write('\nError: filesystem not implemented.');
 	},
 
 	clear: function(args) {
 		t.value = '';
+	},
+
+	who: function(args) {
+		t.value += '\nJust you for now.\n'
+	},
+
+	commands: function(args) {
+		t.value += '\nThis system knows the following words:\n';
+		names = Object.getOwnPropertyNames(commands); //introspective
+		t.write(names);
+	},
+
+	hello: function(args) {
+		t.write("\nhi there...")
+	},
+
+	how: function() {
+		t.write('\nwhy');
+	},
+	why: function() {
+		t.write('\nhow');
+	},
+
+	help: function(args) {
+		t.write([
+			"\nHello and welcome",
+			"To the computer inside your browser\n",
+			"This is just a simulation of a computer, actually.",
+			"But that doesn't make it any less real.",
+			"What is a simulation anyway?",
+			"What is 'real'?",
+			"Are we dreaming right now?\n",
+			"Anyway,",
+			"For a list of commands, type 'commands'",
+			"Don't type the quotes, just the word inside the quotes."]);
+	},
+
+	man: function(args) {
+		t.write('\nhaha nope');
 	}
 }
 
@@ -33,7 +91,16 @@ window.onload = function() {
 
 	// add a new line ready for user input
 	t.newline = function() {
-		t.value += '\n' + lineleader;
+		t.value += lineleader;
+	}
+
+	t.write = function(lines) {
+		if(typeof(lines) === 'string') {
+			t.value += lines + '\n'; 
+		}
+		else {
+			lines.map(l => t.value += l + '\n')
+		}
 	}
 
 	Object.defineProperty(t, 'currentLine', {
@@ -57,6 +124,7 @@ window.onload = function() {
 
 			if(args.length == 1 && args[0] == "") {
 				// do nothing...
+				t.value += '\n';
 			}
 			else if(typeof f === 'function'){
 				f(args);	

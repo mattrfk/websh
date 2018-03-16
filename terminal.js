@@ -1,30 +1,117 @@
+import {pwd} from './fs.js'
+
 // TODO: this doesn't seem like the right way to scope this
 var t;
 var lineleader = 'browser$ '
 
-var fileSystem = {
-	cwd: '/',
+
+// language extension courtesy of D. Crockford
+if (typeof Object.create !== 'function') {
+     Object.create = function (o) {
+         var F = function () {};
+         F.prototype = o;
+         return new F();
+     };
+}
+
+// define a constructor
+var file = {
+	name: '/',
+	children: {},
+	timeStamp: '?',
 };
 
-var commands = {
+var fs = {
+	currentNode: Object.create(file),
 
+	touch: function(name) {
+		
+		if (fs.fileExists(name)) {
+			
+		}
+		else {
+			fs.log("FS: creating new file:" + name);
+			fs.currentNode.children[name] = Object.create(file);
+			fs.currentNode.children[name].name = name;	
+		}
+		fs.currentNode.children[name].timeStamp += 1;
+		
+	},
+
+	fileExists: function(file) {
+		if(Object.getOwnPropertyDescriptor(fs.currentNode.children, file)) {
+			return true;
+		}
+		return false;
+	},
+
+	initDir(name) {
+		fs.currentNode.children[name].children['.'] = fs.currentNode.children[name];
+		fs.currentNode.children[name].children['..'] = fs.currentNode;
+	},
+
+	mkDir: function(name) {
+		if(fs.fileExists(name)) {
+			fs.log("mkdir fail, " + name + " already exists");
+			return;
+		}
+		fs.touch(name)
+
+		// set up as directory
+		fs.initDir(name);
+	},
+
+	isDir: function(name) {
+		if(fs.fileExists(name) && fs.currentNode.children[name].children != {} ) {
+			return true;
+		}
+		return false;
+	},
+
+	log: function(msg) {
+		console.log(msg);
+	},
+};
+
+var help = {
+	cleanArgs: function(args) {
+		return args.slice(1, args.length).filter(a => a != "");
+	}
+}
+
+var commands = {
 	echo: function(args) {
 		var v = "something went very wrong";
-		if(typeof(args) === 'string') { 
-			v = args; 
-		}
-		else { 
-			v = args.slice(1, args.length).reduce((s, a) => s + a + ' ', '');
-			v = v.substring(0, v.length-1); // oh noooo
-		}
+		console.log(args);
+		v = help.cleanArgs(args).reduce((s, a) => s + a + ' ', '');
+		v = v.substring(0, v.length-1); // oh noooo
 		t.value += '\n';
 		t.write(v)
 	},
 
 	pwd: function(args) {
-		t.write('\nError: filesystem not implemented.');
+		t.write('\n' + fs.currentNode.name);
+	},
+	touch: function(args) {
+		args = help.cleanArgs(args);
+		console.log(args);
+		args.forEach(a => fs.touch(a));
+	},
+	mkdir: function(args) {
+		args = help.cleanArgs(args);
+		args.forEach(function(a){
+			if(fs.fileExists(a)) {
+				t.writeln(a + " already exists");
+			}
+			else {
+				fs.mkDir(a);
+			}
+		});
 	},
 	ls: function(args) {
+		Object.getOwnPropertyNames(fs.currentNode.children).forEach(n => t.write('\n' + n));
+	},
+	rm: function(args) {
 		t.write('\nError: filesystem not implemented.');
 	},
 	cd: function(args) {
@@ -33,12 +120,11 @@ var commands = {
 	cat: function(args) {
 		t.write('\nError: filesystem not implemented.');
 	},
-	touch: function(args) {
-		t.write('\nError: filesystem not implemented.');
-	},
+
 
 	clear: function(args) {
 		t.value = '';
+		event.stopPropagation();
 	},
 
 	who: function(args) {
@@ -47,27 +133,33 @@ var commands = {
 
 	commands: function(args) {
 		t.value += '\nThis system knows the following words:\n';
-		names = Object.getOwnPropertyNames(commands); //introspective
-		t.write(names);
+		names = Object.getOwnPropertyNames(commands).filter(f => commands[f].prototype.constructor.length != 0); //introspective
+		t.writeln(names);
 	},
 
-	hello: function(args) {
+	hello: function() {
 		t.write("\nhi there...")
 	},
 
 	how: function() {
-		t.write('\nwhy');
+		t.write('\nmore like why');
 	},
 	why: function() {
-		t.write('\nhow');
+		t.write('\nmore like how');
+	},
+	what: function() {
+		t.write('\nmore like who');
+	},
+	ow: function() {
+		t.write('\nsorry');
 	},
 
 	help: function(args) {
-		t.write([
+		t.writeln([
 			"\nHello and welcome",
 			"To the computer inside your browser\n",
-			"This is just a simulation of a computer, actually.",
-			"But that doesn't make it any less real.",
+			"This is just a simulation.",
+			"But really what isn't?",
 			"What is a simulation anyway?",
 			"What is 'real'?",
 			"Are we dreaming right now?\n",
@@ -82,21 +174,27 @@ var commands = {
 }
 
 window.onload = function() {
-
-	// setup, no upset
 	t = document.getElementById('shell');
-	t.value = lineleader;
 	t.setAttribute("spellcheck", "false");
 	t.focus();
 
 	// add a new line ready for user input
-	t.newline = function() {
-		t.value += lineleader;
+	t.newline = function(lead='\n') {
+		t.value += lead + lineleader;
 	}
 
 	t.write = function(lines) {
 		if(typeof(lines) === 'string') {
-			t.value += lines + '\n'; 
+			t.value += lines; 
+		}
+		else {
+			lines.map(l => t.value += l + ' ')
+		}
+	}
+
+	t.writeln = function(lines) {
+		if(typeof(lines) === 'string') {
+			t.value += '\n' + lines; 
 		}
 		else {
 			lines.map(l => t.value += l + '\n')
@@ -124,7 +222,6 @@ window.onload = function() {
 
 			if(args.length == 1 && args[0] == "") {
 				// do nothing...
-				t.value += '\n';
 			}
 			else if(typeof f === 'function'){
 				f(args);	
@@ -133,8 +230,7 @@ window.onload = function() {
 				commands.echo(args[0] + ": command not found.");
 			}
 			t.newline();
-			
-			console.log(t.scrollHeight);
+
 			t.scrollTop = t.scrollHeight;
 
 			return false;
@@ -145,7 +241,7 @@ window.onload = function() {
 	}
 
 	this.onkeydown = function(event) {
- 		console.log("keyCode: " + event.keyCode);
+ 		//console.log("keyCode: " + event.keyCode);
 
 		// delete
 		if(event.keyCode == 46) {
@@ -170,4 +266,12 @@ window.onload = function() {
 			}
 		}
 	}
+
+	t.writeln("setting up system...");
+	t.writeln("loading filesystem");
+	fs.children
+	t.writeln("ready...")
+	t.writeln("set")
+	t.writeln("go!")
+	t.newline();
 }

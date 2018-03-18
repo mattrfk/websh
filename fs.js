@@ -1,11 +1,10 @@
-// Filesystem simulation (emulation?) in javascript
-// State of FS stored in FS object 
-//
-
-export function pwd () {
-	return "I don't know yet"
+// jsonfs
+let FileSystem = {
+	name: "my filesystem",
 }
 
-export function touch () {
-
+// template for a file:
+let File = {
+	isDir: false,
+	children: [],
 }

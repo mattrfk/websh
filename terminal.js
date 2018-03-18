@@ -1,77 +1,12 @@
-import {pwd} from './fs.js'
-
-// TODO: this doesn't seem like the right way to scope this
+// Browser terminal for ESOS (JSOS)
+// it is the code that makes possible
+// all of our modern wonders
+// we are dancing for nothing
+// if we forget the words
 var t;
 var lineleader = 'browser$ '
 
-
-// language extension courtesy of D. Crockford
-if (typeof Object.create !== 'function') {
-     Object.create = function (o) {
-         var F = function () {};
-         F.prototype = o;
-         return new F();
-     };
-}
-
-// define a constructor
-var file = {
-	name: '/',
-	children: {},
-	timeStamp: '?',
-};
-
-var fs = {
-	currentNode: Object.create(file),
-
-	touch: function(name) {
-		
-		if (fs.fileExists(name)) {
-			
-		}
-		else {
-			fs.log("FS: creating new file:" + name);
-			fs.currentNode.children[name] = Object.create(file);
-			fs.currentNode.children[name].name = name;	
-		}
-		fs.currentNode.children[name].timeStamp += 1;
-		
-	},
-
-	fileExists: function(file) {
-		if(Object.getOwnPropertyDescriptor(fs.currentNode.children, file)) {
-			return true;
-		}
-		return false;
-	},
-
-	initDir(name) {
-		fs.currentNode.children[name].children['.'] = fs.currentNode.children[name];
-		fs.currentNode.children[name].children['..'] = fs.currentNode;
-	},
-
-	mkDir: function(name) {
-		if(fs.fileExists(name)) {
-			fs.log("mkdir fail, " + name + " already exists");
-			return;
-		}
-		fs.touch(name)
-
-		// set up as directory
-		fs.initDir(name);
-	},
-
-	isDir: function(name) {
-		if(fs.fileExists(name) && fs.currentNode.children[name].children != {} ) {
-			return true;
-		}
-		return false;
-	},
-
-	log: function(msg) {
-		console.log(msg);
-	},
-};
+let os = OS.init();
 
 var help = {
 	cleanArgs: function(args) {
@@ -156,20 +91,24 @@ var commands = {
 
 	help: function(args) {
 		t.writeln([
-			"\nHello and welcome",
+			"\n****************************************",
+			"Hello and welcome",
 			"To the computer inside your browser\n",
-			"This is just a simulation.",
-			"But really what isn't?",
-			"What is a simulation anyway?",
-			"What is 'real'?",
-			"Are we dreaming right now?\n",
-			"Anyway,",
+			"This is not real computer.",
+			"It is just a simulation.",
+			"Actually it is an emulation, not a simulation.",
+			"But maybe it is also a simulation.",
+			"Maybe everything is a simulation.",
+			"How do you know that you're not a simulation?",
+			"Or an emulation, for that matter?",
+			"Do you feel what you know, or do you know what you feel?\n",
+			"****************************************",
 			"For a list of commands, type 'commands'",
-			"Don't type the quotes, just the word inside the quotes."]);
+			"Don't type the quotes, just the word inside the quotes. commands"]);
 	},
 
 	man: function(args) {
-		t.write('\nhaha nope');
+		t.write('\nhaha nope. sorry');
 	}
 }
 
@@ -269,7 +208,6 @@ window.onload = function() {
 
 	t.writeln("setting up system...");
 	t.writeln("loading filesystem");
-	fs.children
 	t.writeln("ready...")
 	t.writeln("set")
 	t.writeln("go!")

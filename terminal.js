@@ -6,13 +6,12 @@
 var t;
 var lineleader = 'browser$ '
 
-let os = OS.init();
-
-var help = {
-	cleanArgs: function(args) {
-		return args.slice(1, args.length).filter(a => a != "");
-	}
-}
+//var commands = Object.create(OS.commands);
+let FS = FileSystem;
+FS.init();
+FS.addDir("foo", "///");
+FS.addDir("boo", "///");
+console.log(FS.ls());
 
 var commands = {
 	echo: function(args) {
@@ -169,9 +168,7 @@ window.onload = function() {
 				commands.echo(args[0] + ": command not found.");
 			}
 			t.newline();
-
 			t.scrollTop = t.scrollHeight;
-
 			return false;
 		}
 		else if (t.selectionEnd < t.value.length - t.currentLine.length) {
@@ -212,4 +209,10 @@ window.onload = function() {
 	t.writeln("set")
 	t.writeln("go!")
 	t.newline();
+}
+
+var help = {
+	cleanArgs: function(args) {
+		return args.slice(1, args.length).filter(a => a != "");
+	}
 }

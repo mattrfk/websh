@@ -12,9 +12,12 @@
 //
 // terminal:
 // clear
+
+// the Operating System (everything is an object in javascript)
 let OS = {
-	FS: FileSystem,
 	init: function(){
 		console.log("initializing OS");
-	}
+	},
+
+	commands: { }
 }

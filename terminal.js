@@ -9,9 +9,6 @@ var lineleader = 'browser$ '
 //var commands = Object.create(OS.commands);
 let FS = FileSystem;
 FS.init();
-FS.addDir("foo", "///");
-FS.addDir("boo", "///");
-console.log(FS.ls());
 
 var commands = {
 	echo: function(args) {
@@ -24,12 +21,12 @@ var commands = {
 	},
 
 	pwd: function(args) {
-		t.write('\n' + fs.currentNode.name);
+		t.write('\n' + FS.current.getPath());
 	},
 	touch: function(args) {
 		args = help.cleanArgs(args);
 		console.log(args);
-		args.forEach(a => fs.touch(a));
+		args.forEach(a => FS.createFile(a));
 	},
 	mkdir: function(args) {
 		args = help.cleanArgs(args);
@@ -43,7 +40,7 @@ var commands = {
 		});
 	},
 	ls: function(args) {
-		Object.getOwnPropertyNames(fs.currentNode.children).forEach(n => t.write('\n' + n));
+		t.write("\n" + FS.ls().join("\t"));
 	},
 	rm: function(args) {
 		t.write('\nError: filesystem not implemented.');
@@ -203,11 +200,6 @@ window.onload = function() {
 		}
 	}
 
-	t.writeln("setting up system...");
-	t.writeln("loading filesystem");
-	t.writeln("ready...")
-	t.writeln("set")
-	t.writeln("go!")
 	t.newline();
 }
 

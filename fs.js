@@ -54,9 +54,11 @@ let FileSystem = {
 				else { return d.name } 
 		}));
 	},
+
 	parsePath: function(path) {
 		return path.split('/');
 	},
+
 	exists: function(path) {
 		//TODO: handle .. and .
 		p = this.parsePath(path);
@@ -66,14 +68,14 @@ let FileSystem = {
 			for(let i = 0; i < p.length; i++){
 				if(n.contains(p[i]) && n.children[p[i]].isDir) {
 					n = n.children[p[i]]
-				}
-				else { return false }
+				} else { return false }
 			}
 		} else {
 			return false;
 		}
 		return true;
 	},
+
 	createFile: function(path) {		
 		if(this.exists(path)) {
 			console.log("File already exists");

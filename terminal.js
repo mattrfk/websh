@@ -20,14 +20,20 @@ var commands = {
 		t.write(v)
 	},
 
+	ls: function(args) {
+		t.write("\n" + FS.ls().join("\t"));
+	},
+
 	pwd: function(args) {
 		t.write('\n' + FS.current.getPath());
 	},
+
 	touch: function(args) {
 		args = help.cleanArgs(args);
 		console.log(args);
-		args.forEach(a => FS.createFile(a));
+		args.forEach(a => FS.touch(a));
 	},
+
 	mkdir: function(args) {
 		args = help.cleanArgs(args);
 		args.forEach(function(a){
@@ -39,9 +45,7 @@ var commands = {
 			}
 		});
 	},
-	ls: function(args) {
-		t.write("\n" + FS.ls().join("\t"));
-	},
+
 	rm: function(args) {
 		t.write('\nError: filesystem not implemented.');
 	},
@@ -97,15 +101,18 @@ var commands = {
 			"Maybe everything is a simulation.",
 			"How do you know that you're not a simulation?",
 			"Or an emulation, for that matter?",
-			"Do you feel what you know, or do you know what you feel?\n",
+			"Do you know what you feel, or do you feel what you know?\n",
 			"****************************************",
 			"For a list of commands, type 'commands'",
 			"Don't type the quotes, just the word inside the quotes. commands"]);
 	},
 
 	man: function(args) {
-		t.write('\nhaha nope. sorry');
-	}
+		t.write('\nwoman');
+	},
+	woman: function(args) {
+		t.write('\njust a computer');
+	},
 }
 
 window.onload = function() {
@@ -205,6 +212,7 @@ window.onload = function() {
 
 var help = {
 	cleanArgs: function(args) {
+		if(!args) return false;
 		return args.slice(1, args.length).filter(a => a != "");
 	}
 }

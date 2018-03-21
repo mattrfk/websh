@@ -3,6 +3,8 @@
 // all of our modern wonders
 // we are dancing for nothing
 // if we forget the words
+//
+// TODO arrow keys for command memory
 var t;
 var lineleader = 'browser$ '
 
@@ -11,7 +13,7 @@ let FS = FileSystem;
 FS.init();
 
 var commands = {
-	echo: function(args) {
+	echo(args) {
 		var v = "something went very wrong";
 		console.log(args);
 		v = help.cleanArgs(args).reduce((s, a) => s + a + ' ', '');
@@ -20,76 +22,70 @@ var commands = {
 		t.write(v)
 	},
 
-	ls: function(args) {
+	ls(args) {
 		t.write("\n" + FS.ls().join("\t"));
 	},
 
-	pwd: function(args) {
+	pwd(args) {
 		t.write('\n' + FS.current.getPath());
 	},
 
-	touch: function(args) {
+	touch(args) {
 		args = help.cleanArgs(args);
 		console.log(args);
 		args.forEach(a => FS.touch(a));
 	},
 
-	mkdir: function(args) {
+	rm(args) {
 		args = help.cleanArgs(args);
-		args.forEach(function(a){
-			if(fs.fileExists(a)) {
-				t.writeln(a + " already exists");
-			}
-			else {
-				fs.mkDir(a);
-			}
-		});
+		console.log(args);
+		args.forEach(a => FS.rm(a));
 	},
 
-	rm: function(args) {
+	mkdir(args) {
+	},
+
+	cd(args) {
 		t.write('\nError: filesystem not implemented.');
 	},
-	cd: function(args) {
-		t.write('\nError: filesystem not implemented.');
-	},
-	cat: function(args) {
+	cat(args) {
 		t.write('\nError: filesystem not implemented.');
 	},
 
 
-	clear: function(args) {
+	clear(args) {
 		t.value = '';
 		event.stopPropagation();
 	},
 
-	who: function(args) {
+	who(args) {
 		t.value += '\nJust you for now.\n'
 	},
 
-	commands: function(args) {
+	commands(args) {
 		t.value += '\nThis system knows the following words:\n';
 		names = Object.getOwnPropertyNames(commands).filter(f => commands[f].prototype.constructor.length != 0); //introspective
 		t.writeln(names);
 	},
 
-	hello: function() {
+	hello() {
 		t.write("\nhi there...")
 	},
 
-	how: function() {
+	how() {
 		t.write('\nmore like why');
 	},
-	why: function() {
+	why() {
 		t.write('\nmore like how');
 	},
-	what: function() {
+	what() {
 		t.write('\nmore like who');
 	},
-	ow: function() {
+	ow() {
 		t.write('\nsorry');
 	},
 
-	help: function(args) {
+	help(args) {
 		t.writeln([
 			"\n****************************************",
 			"Hello and welcome",
@@ -107,16 +103,24 @@ var commands = {
 			"Don't type the quotes, just the word inside the quotes. commands"]);
 	},
 
-	man: function(args) {
+	man(args) {
 		t.write('\nwoman');
 	},
-	woman: function(args) {
+	woman(args) {
 		t.write('\njust a computer');
 	},
 }
 
 window.onload = function() {
 	t = document.getElementById('shell');
+	initTerminal(t)
+
+	window.onkeypress = processKeyPress
+	window.onkeydown = processKeyDown
+	t.newline();
+}
+
+let initTerminal = function(t) {
 	t.setAttribute("spellcheck", "false");
 	t.focus();
 
@@ -154,60 +158,56 @@ window.onload = function() {
 			t.value += l; // add new
 		}
 	});
+}
 
-	this.onkeypress = function(event) {
-		// ENTER: try to run the command
-		if(event.keyCode == 13) {
-			
-			args = t.currentLine.split(' ');
-			f = commands[args[0]];
+let processKeyPress = function(event) {
+	// ENTER: try to run the command
+	if(event.keyCode == 13) {
+		
+		args = t.currentLine.split(' ');
+		f = commands[args[0]];
 
-			if(args.length == 1 && args[0] == "") {
-				// do nothing...
-			}
-			else if(typeof f === 'function'){
-				f(args);	
-			}
-			else {
-				commands.echo(args[0] + ": command not found.");
-			}
-			t.newline();
-			t.scrollTop = t.scrollHeight;
+		if(args.length == 1 && args[0] == "") {
+			// do nothing...
+		}
+		else if(typeof f === 'function'){
+			f(args);	
+		}
+		else {
+			commands.echo(args[0] + ": command not found.");
+		}
+		t.newline();
+		t.scrollTop = t.scrollHeight;
+		return false;
+	}
+	else if (t.selectionEnd < t.value.length - t.currentLine.length) {
+		t.selectionEnd = t.selectionStart = t.textLength;
+	}
+}
+
+let processKeyDown = function(event) {
+	// delete
+	if(event.keyCode == 46) {
+		if(t.selectionEnd < t.textLength - t.currentLine.length) {
+			return false; 
+		}
+	}
+
+	// backspace
+	if(event.keyCode == 8) {
+		if(t.selectionEnd <= t.textLength - t.currentLine.length) {
+			return false; 
+		}
+	}
+
+	// delete or backspace
+	if(event.keyCode == 46 || event.keyCode == 8) {
+		if(t.currentLine == lineleader) { return false; }
+		if(t.selectionStart != t.selectionEnd && 
+		t.selectionStart < t.textLength - t.currentLine.length) { 
 			return false;
 		}
-		else if (t.selectionEnd < t.value.length - t.currentLine.length) {
-			t.selectionEnd = t.selectionStart = t.textLength;
-		}
 	}
-
-	this.onkeydown = function(event) {
- 		//console.log("keyCode: " + event.keyCode);
-
-		// delete
-		if(event.keyCode == 46) {
-			if(t.selectionEnd < t.textLength - t.currentLine.length) {
-				return false; 
-			}
-		}
-
-		// backspace
-		if(event.keyCode == 8) {
-			if(t.selectionEnd <= t.textLength - t.currentLine.length) {
-				return false; 
-			}
-		}
-
-		// delete or backspace
-		if(event.keyCode == 46 || event.keyCode == 8) {
-			if(t.currentLine == lineleader) { return false; }
-			if(t.selectionStart != t.selectionEnd && 
-			t.selectionStart < t.textLength - t.currentLine.length) { 
-				return false;
-			}
-		}
-	}
-
-	t.newline();
 }
 
 var help = {

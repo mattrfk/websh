@@ -1,29 +1,38 @@
 // Browser terminal for ESOS (JSOS)
-// it is the code that makes possible
-// all of our modern wonders
-// we are dancing for nothing
-// if we forget the words
 //
 // TODO arrow keys for command memory
 var t;
-var lineleader = 'browser$ '
+var lineleader = 'websh$ '
 
 //var commands = Object.create(OS.commands);
 let FS = FileSystem;
 FS.init();
 
+// >> > | 
+
 var commands = {
 	echo(args) {
-		var v = "something went very wrong";
 		console.log(args);
-		v = help.cleanArgs(args).reduce((s, a) => s + a + ' ', '');
-		v = v.substring(0, v.length-1); // oh noooo
+		let v = "something went very wrong."
+		if (typeof args === 'string' || args instanceof String){
+			v = args
+		} else {
+			let v = help.cleanArgs(args).reduce((s, a) => s + a + ' ', '');
+			v = v.substring(0, v.length-1); // oh noooo
+		}
 		t.value += '\n';
 		t.write(v)
 	},
 
+	'>>': function(args) {
+
+	},
+
 	ls(args) {
-		t.write("\n" + FS.ls().join("\t"));
+		args = help.cleanArgs(args);
+		if(args.length === 0) { args = ["."] }
+		console.log(args);
+		args.forEach(a => t.writeln(FS.ls(a)));
 	},
 
 	pwd(args) {
@@ -33,16 +42,19 @@ var commands = {
 	touch(args) {
 		args = help.cleanArgs(args);
 		console.log(args);
-		args.forEach(a => FS.touch(a));
+		args.forEach(a => t.write(FS.touch(a)));
 	},
 
 	rm(args) {
 		args = help.cleanArgs(args);
 		console.log(args);
-		args.forEach(a => FS.rm(a));
+		args.forEach(a => t.write(FS.rm(a)));
 	},
 
 	mkdir(args) {
+		args = help.cleanArgs(args);
+		console.log(args);
+		args.forEach(a => t.write(FS.mkdir(a)));
 	},
 
 	cd(args) {
@@ -64,7 +76,7 @@ var commands = {
 
 	commands(args) {
 		t.value += '\nThis system knows the following words:\n';
-		names = Object.getOwnPropertyNames(commands).filter(f => commands[f].prototype.constructor.length != 0); //introspective
+		names = Object.getOwnPropertyNames(commands)
 		t.writeln(names);
 	},
 
@@ -93,14 +105,17 @@ var commands = {
 			"This is not real computer.",
 			"It is just a simulation.",
 			"Actually it is an emulation, not a simulation.",
-			"But maybe it is also a simulation.",
-			"Maybe everything is a simulation.",
-			"How do you know that you're not a simulation?",
-			"Or an emulation, for that matter?",
-			"Do you know what you feel, or do you feel what you know?\n",
+			"But maybe everything is a simulation.",
+			"Maybe you are a simulation.",
+			"Or an emulation?",
+			"Do you know what you feel?",
+			"Or do you feel what you know?\n",
 			"****************************************",
 			"For a list of commands, type 'commands'",
-			"Don't type the quotes, just the word inside the quotes. commands"]);
+			"Don't type the quotes, just the word inside the quotes.",
+			"commands",
+			"Like that."
+		]);
 	},
 
 	man(args) {
@@ -130,6 +145,7 @@ let initTerminal = function(t) {
 	}
 
 	t.write = function(lines) {
+		if(!lines) {return}
 		if(typeof(lines) === 'string') {
 			t.value += lines; 
 		}
@@ -210,6 +226,8 @@ let processKeyDown = function(event) {
 	}
 }
 
+// Fellow citizens,
+// Do your part and make waste.
 var help = {
 	cleanArgs: function(args) {
 		if(!args) return false;

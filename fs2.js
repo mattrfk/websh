@@ -1,6 +1,7 @@
 //TODO sub-object for "API"
 //TODO timestamp
 // Handy : JSON.stringify(FS.current)
+
 "use strict";
 let FileSystem = {
 	// attributes of a file
@@ -169,4 +170,9 @@ let FileSystem = {
 	logFS() {
 		console.log(JSON.stringify(this.current))
 	}
+}
+
+if(typeof module !== 'undefined' && module.exports) {
+	module.exports = FileSystem
+	// I've a feeling we're not in the browser anymore
 }

@@ -29,7 +29,7 @@ let FileSystem = {
 		let p = this.parsePath(path)
 		let f = this.exists(p)
 		if(!f) {
-			return "\nls: " + path +": No such file or directory"
+			return "ls: " + path +": No such file or directory"
 		}
 		let c = f.children
 		let s =  Object.keys(c).map(function(f) {
@@ -64,10 +64,10 @@ let FileSystem = {
 	mkdir(path) {
 		let d = this.createFile(path, true)
 		if(!d) {
-			return "\nmkdir: " + path +": No such file or directory"
+			return "mkdir: " + path +": No such file or directory"
 		}
 		if(d === true) {
-			return "\nmkdir: "+ path + ": File exists"
+			return "mkdir: "+ path + ": File exists"
 			console.log("file already exists")
 		}
 		else {

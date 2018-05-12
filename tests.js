@@ -1,40 +1,3 @@
-let fs = require('./fs2.js')
-
-function runTests(){
-	fs.init()
-
-	for(let test in testCases) {
-		out('----------------------------------------\n')
-		Object.entries(testCases[test]).forEach(function([input, expected]) {
-			let result = fs[test](input)
-			out(test + '(\'' + input + '\'):')
-			if(result === expected){
-				//out.green('\t\t\tpass')
-				out.green('pass')
-			} else {
-				out.red('fail - expected: ' + expected)
-				out.red('instead got: ' +  result)
-			}
-		})
-		out('\n')
-	}
-}
-
-
-/// this is unordered...
-let testCases = {
-	createFile: {
-		"": true
-	},
-	ls: {
-		'': 		'.\t..',
-		'.':		'.\t..',
-		'..':		'.\t..',
-		'.././.././../.././.': '.\t..',
-	},
-
-}
-
 // important stuff
 function out(msg) {
 	process.stdout.write(msg)
@@ -47,30 +10,51 @@ out.red= function(msg) {
 }
 
 
-runTests()
-// Colors!
-//Reset = "\x1b[0m"
-//Bright = "\x1b[1m"
-//Dim = "\x1b[2m"
-//Underscore = "\x1b[4m"
-//Blink = "\x1b[5m"
-//Reverse = "\x1b[7m"
-//Hidden = "\x1b[8m"
-//
-//FgBlack = "\x1b[30m"
-//FgRed = "\x1b[31m"
-//FgGreen = "\x1b[32m"
-//FgYellow = "\x1b[33m"
-//FgBlue = "\x1b[34m"
-//FgMagenta = "\x1b[35m"
-//FgCyan = "\x1b[36m"
-//FgWhite = "\x1b[37m"
-//
-//BgBlack = "\x1b[40m"
-//BgRed = "\x1b[41m"
-//BgGreen = "\x1b[42m"
-//BgYellow = "\x1b[43m"
-//BgBlue = "\x1b[44m"
-//BgMagenta = "\x1b[45m"
-//BgCyan = "\x1b[46m"
-//BgWhite = "\x1b[47m"
+// this is the test-engine
+function test(cmd, input, expected) {
+	let result = fs[cmd](input)	
+	this.total ? this.total = 0 : this.total++
+	out(cmd+ '(\'' + input + '\'):')
+	if(result === expected){
+		out.green('pass')
+	} else {
+		this.failed ? this.failed = 0 : this.failed++
+		out.red('fail')
+		console.log('\texpected: ' + expected)
+		console.log('\treceived: ' + result)
+	}
+}
+test.total = 0;
+test.failed = 0;
+
+let fs = require('./fs2.js')
+fs.init()
+
+test('ls', '', '.\t..')
+test('ls', '', '.\t..')
+test('ls', '.', '.\t..')
+test('ls', '..', '.\t..')
+test('ls', '.././.././../.././.', '.\t..')
+
+test('mkdir', '.', 'mkdir: .: File exists')
+test('mkdir', '..', 'mkdir: ..: File exists')
+test('mkdir', 'a', '')
+test('mkdir', 'a', 'mkdir: a: File exists')
+test('mkdir', 'a/b', '')
+test('mkdir', 'a/b/c', '')
+test('mkdir', 'a/b/d', '')
+
+test('ls', '..', '.\t..\ta/')
+test('ls', 'a', '.\t..\tb/')
+test('ls', 'a/b', '.\t..\tc/\td/')
+test('ls', 'a/b/../b', '.\t..\tc/\td/')
+
+
+console.log('----------------')
+console.log(test.total + ' tests run')
+if(test.failed > 0) {
+	out.red(test.failed + " failed")
+}
+else {
+	out.green("all passed")
+}

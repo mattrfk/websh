@@ -27,7 +27,7 @@ function test(cmd, input, expected) {
 test.total = 0;
 test.failed = 0;
 
-let fs = require('./fs2.js')
+let fs = require('./fs.js')
 fs.init()
 
 test('ls', '', '.\t..')

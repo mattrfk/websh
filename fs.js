@@ -1,6 +1,22 @@
-//TODO sub-object for "API"
-//TODO timestamp
+// - expose "API"
+// - timestamps
+// - validate filesystem?
+//  
+//
 // Handy : JSON.stringify(FS.current)
+//
+// {"isDir":true,
+// 	"name":"",
+// 	"children": {
+// 		".": null,
+// 		"..":null,
+// 		"c": {
+// 			"isDir":true,
+// 			"name":"c",
+// 			"children":{
+// 				".":null,
+// 				"..":""}
+// 		}}}
 
 "use strict";
 let FileSystem = {
@@ -18,8 +34,36 @@ let FileSystem = {
 			this.current = this.root
 			this.root.isDir = true
 			this.root.name = ""
+			this.root.path = []
 			this.root.children = { ".": null, "..": null }
 		}
+	},
+
+	// return file if it is created
+	// return true if it already exists
+	// return false if the path doesn't work 
+	createFile(path, isDir){
+		let p = this.parsePath(path)
+		if(this.exists(p)) {
+			return true
+		} else {
+			if(p && p.length > 0) {
+				let fname = p.pop(); // splice(index, howmany)
+				let dir = this.exists(p)
+				if(fname !== "" && dir && dir.isDir) {
+					let o = { 
+						isDir: isDir, 
+						name:fname, 
+						path: this.join(p, fname)
+					}
+					dir.children[fname] = o
+					return o
+				} else {
+					return false 
+				}
+			}
+		}
+		return true;
 	},
 
 	// -----------------------
@@ -29,7 +73,7 @@ let FileSystem = {
 		let p = this.parsePath(path)
 		let f = this.exists(p)
 		if(!f) {
-			return "ls: " + path +": No such file or directory"
+			return "ls: " + path + ": No such file or directory"
 		}
 		let c = f.children
 		let s =  Object.keys(c).map(function(f) {
@@ -41,11 +85,7 @@ let FileSystem = {
 	},
 
 	pwd() {
-		let p = "", n = this.current
-		/// parent is .. - but what is the real name???
-		do {
-		} while(n !== this.root)
-		return p
+		this.getCurrentPath()
 	},
 
 	touch(path) {
@@ -71,7 +111,7 @@ let FileSystem = {
 			console.log("file already exists")
 		}
 		else {
-			d.children = {".": null, "..": this.getParentDir(path).name}
+			d.children = {".": null, "..": null}
 		}
 		return "";
 	},
@@ -83,92 +123,89 @@ let FileSystem = {
 			if(f.isDir) {
 				return "\nrm: " + path + ": is a directory"
 			}
-			let c = this.getParentDir(path)
+			let c = this.getParentDir(p)
 			delete c.children[f.name]
 		}
 	},
 
 	cd() {},
 
+
 	// ------------------------------
 	// helpers
-
-	// return file if it is created
-	// return true if it already exists
-	// return false if the path doesn't work 
-	createFile(path, isDir){
-		let p = this.parsePath(path)
-		let y = this.exists(p)
-		if(y) {
-			return true
-		} else {
-			if(p && p.length > 0) {
-				let fname = p[p.length-1]
-				p.pop(); // splice(index, howmany)
-				let dir = this.exists(p)
-				if(fname !== "" && dir && dir.isDir) {
-					let o = { isDir: isDir, name:fname }
-					dir.children[fname] = o
-					return o
-				} else {
-					return false 
-				}
-			}
+	
+	// clean and separate the path
+	// takes a string, returns a Array
+	parsePath(path){
+		if(path === '') { return ["."] }
+		let p = path.split('/')
+		if(p[0] === '') {
+			p[0] = '/'	
 		}
-		return true;
+		return p.filter(n => n !== "")
 	},
 
+	// join two paths
+	join(p1, p2) {
+		if(Object.prototype.toString.call(p2) === '[object String]') { // srsly
+			p2 = [p2]
+		}
+		return p1.concat(p2)
+	},
+	
 	// return the parent dir or false if invalid
-	getParentDir(path) {
-		let p = this.parsePath(path)
+	getParentDir(p) {
 		if(!this.exists(p)) { return false }
 		if(p.length === 0) { return this.current }
 		else { 
-			p.pop()
-			return this.exists(p) 
+			return this.exists(p.slice(0, p.length-1)) 
 		}
 	},
 	
-	// return the directory up or down from the current directory
-	// as indicated by the value of the next parameter
-	// TODO: English
+	// return the specified directory
+	// relative to the current directory
+	// as indicated by the value 
+	// of the next parameter
 	walk(current, next) {
 		if(!current || !next || !current.isDir || !current.children) { 
 			return false 
 		}
 		if(next === ".") { return current }
-		if(next === ".." && current.children[next] === null) { 
-			return current
+		if(next === "..") {
+			if(current.path === []) {
+				// we are at the root
+				return current
+			}
+			else{
+				// we are not at the root; return this guy's parent
+				return this.getParentDir(current.path)
+			}
 		}
 		return current.children[next]
 	},
 
+	// take the path as a list
 	// if it exists, return (a reference to) it
 	// if it exists not, return false
+	// a .. a
 	exists(p) {
 		let n = false
 		if(!p || p.length === 0) { return this.current }
-		if(p[0] === "") {
-			while(p[0] === ""){ // "////////path"
-				p.shift();
-			}
+		if(p[0] === "/") { // the path started with a /
 			n = this.root; 
-		}	else { n = this.current }
+			p.shift()
+		}	
+		else { n = this.current }
 
 		for(let i = 0; i < p.length; i++) {
 			n = this.walk(n, p[i])
 			if(!n) { return false }
 		}
-
 		return n;
 	},
 
-	parsePath(path) {
-		return path.split('/');
-	},
-
 	logFS() {
-		console.log(JSON.stringify(this.current))
+		return JSON.stringify(this.current)
 	}
 }
 

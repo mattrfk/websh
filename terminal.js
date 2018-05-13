@@ -1,6 +1,7 @@
 // Browser terminal for ESOS (JSOS)
 //
 // TODO arrow keys for command memory
+// 			stored in a file?
 var t;
 var lineleader = 'websh$ '
 
@@ -30,8 +31,7 @@ var commands = {
 
 	ls(args) {
 		args = help.cleanArgs(args);
-		if(args.length === 0) { args = ["."] }
-		console.log(args);
+		if(args.length === 0) { args = [""] }
 		args.forEach(a => t.writeln(FS.ls(a)));
 	},
 

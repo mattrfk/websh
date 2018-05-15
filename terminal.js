@@ -31,7 +31,7 @@ var commands = {
 	ls(args) {
 		args = help.cleanArgs(args);
 		if(args.length === 0) { args = [""] }
-		args.forEach(a => t.write(FS.ls(a).join("\t")));
+		args.forEach(a => t.write(FS.ls(a)));
 	},
 
 	pwd(args) {

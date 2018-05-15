@@ -45,11 +45,14 @@ let FileSystem = {
 		if(!f) {
 			return "ls: " + path + ": No such file or directory"
 		}
+		if(!f.isDir) {
+			return f.name
+		}
 		let c = f.children
 		let s =  Object.keys(c).map(function(f) {
 			if( f != "." && f != ".." && c[f].isDir) { return f + "/" }
 			else { return f }
-		})
+		}).join("\t")
 
 		return s
 	},
@@ -62,7 +65,7 @@ let FileSystem = {
 		let p = this.parsePath(path)
 		let r = this.createFile(p, false)
 		if(!r) {
-			return "\ntouch: " + path +": No such file or directory"
+			return "touch: " + path +": No such file or directory"
 		}
 		if(r === true) {
 			console.log("file already exists")

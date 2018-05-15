@@ -9,11 +9,10 @@ var lineleader = 'websh$ '
 let FS = FileSystem;
 FS.init();
 
-// >> > | 
+// >> > |
 
 var commands = {
 	echo(args) {
-		console.log(args);
 		let v = "something went very wrong."
 		if (typeof args === 'string' || args instanceof String){
 			v = args
@@ -32,29 +31,31 @@ var commands = {
 	ls(args) {
 		args = help.cleanArgs(args);
 		if(args.length === 0) { args = [""] }
-		args.forEach(a => t.writeln(FS.ls(a)));
+		args.forEach(a => t.write(FS.ls(a).join("\t")));
 	},
 
 	pwd(args) {
-		t.write('\n' + FS.current.getPath());
+		t.write(FS.current.getPath());
 	},
 
 	touch(args) {
 		args = help.cleanArgs(args);
-		console.log(args);
 		args.forEach(a => t.write(FS.touch(a)));
 	},
 
 	rm(args) {
 		args = help.cleanArgs(args);
-		console.log(args);
 		args.forEach(a => t.write(FS.rm(a)));
 	},
 
 	mkdir(args) {
 		args = help.cleanArgs(args);
-		console.log(args);
 		args.forEach(a => t.write(FS.mkdir(a)));
+	},
+
+	rmdir(args) {
+		args = help.cleanArgs(args);
+		args.forEach(a => t.write(FS.rmdir(a)));
 	},
 
 	cd(args) {
@@ -77,7 +78,7 @@ var commands = {
 	commands(args) {
 		t.value += '\nThis system knows the following words:\n';
 		names = Object.getOwnPropertyNames(commands)
-		t.writeln(names);
+		t.write(names);
 	},
 
 	hello() {
@@ -98,7 +99,7 @@ var commands = {
 	},
 
 	help(args) {
-		t.writeln([
+		t.write([
 			"\n****************************************",
 			"Hello and welcome",
 			"To the computer inside your browser\n",
@@ -144,30 +145,21 @@ let initTerminal = function(t) {
 		t.value += lead + lineleader;
 	}
 
-	t.write = function(lines) {
+	t.write = function(lines, end='') {
 		if(!lines) {return}
 		if(typeof(lines) === 'string') {
-			t.value += lines; 
+			t.value += '\n' + lines;
 		}
-		else {
-			lines.map(l => t.value += l + ' ')
-		}
-	}
-
-	t.writeln = function(lines) {
-		if(typeof(lines) === 'string') {
-			t.value += '\n' + lines; 
-		}
-		else {
-			lines.map(l => t.value += l + '\n')
+		else if (typeof lines[Symbol.iterator] === 'function'){
+			lines.map(l => t.value += l + end)
 		}
 	}
 
 	Object.defineProperty(t, 'currentLine', {
-		get: function() { 
+		get: function() {
 			var lines = t.value.split('\n');
 			var line = lines[lines.length - 1];
-			return line.substring(lineleader.length, line.length); 
+			return line.substring(lineleader.length, line.length);
 		},
 		set: function(l) {
 			t.value = t.value.substring(0, l.length); // remove old
@@ -179,7 +171,7 @@ let initTerminal = function(t) {
 let processKeyPress = function(event) {
 	// ENTER: try to run the command
 	if(event.keyCode == 13) {
-		
+
 		args = t.currentLine.split(' ');
 		f = commands[args[0]];
 
@@ -187,7 +179,7 @@ let processKeyPress = function(event) {
 			// do nothing...
 		}
 		else if(typeof f === 'function'){
-			f(args);	
+			f(args);
 		}
 		else {
 			commands.echo(args[0] + ": command not found.");
@@ -205,22 +197,22 @@ let processKeyDown = function(event) {
 	// delete
 	if(event.keyCode == 46) {
 		if(t.selectionEnd < t.textLength - t.currentLine.length) {
-			return false; 
+			return false;
 		}
 	}
 
 	// backspace
 	if(event.keyCode == 8) {
 		if(t.selectionEnd <= t.textLength - t.currentLine.length) {
-			return false; 
+			return false;
 		}
 	}
 
 	// delete or backspace
 	if(event.keyCode == 46 || event.keyCode == 8) {
 		if(t.currentLine == lineleader) { return false; }
-		if(t.selectionStart != t.selectionEnd && 
-		t.selectionStart < t.textLength - t.currentLine.length) { 
+		if(t.selectionStart != t.selectionEnd &&
+		t.selectionStart < t.textLength - t.currentLine.length) {
 			return false;
 		}
 	}

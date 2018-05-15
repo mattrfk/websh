@@ -1,9 +1,7 @@
 // - expose "API"
 // - timestamps
 // - validate filesystem?
-//  
 //
-// Handy : JSON.stringify(FS.current)
 //
 // {"isDir":true,
 // 	"name":"",
@@ -26,7 +24,7 @@ let FileSystem = {
 	root: {}, // this describes the fs
 	current: undefined,
 
-	init(f=null){	
+	init(f=null){
 		if(f !== null) { // load an existing filesystem
 			this.root = f
 		}
@@ -39,37 +37,9 @@ let FileSystem = {
 		}
 	},
 
-	// return file if it is created
-	// return true if it already exists
-	// return false if the path doesn't work 
-	createFile(path, isDir){
-		let p = this.parsePath(path)
-		if(this.exists(p)) {
-			return true
-		} else {
-			if(p && p.length > 0) {
-				let fname = p.pop(); // splice(index, howmany)
-				let dir = this.exists(p)
-				if(fname !== "" && dir && dir.isDir) {
-					let o = { 
-						isDir: isDir, 
-						name:fname, 
-						path: this.join(p, fname)
-					}
-					dir.children[fname] = o
-					return o
-				} else {
-					return false 
-				}
-			}
-		}
-		return true;
-	},
-
 	// -----------------------
 	// commands
 	ls(path) {
-		// does this work. ls <file> ?
 		let p = this.parsePath(path)
 		let f = this.exists(p)
 		if(!f) {
@@ -79,7 +49,7 @@ let FileSystem = {
 		let s =  Object.keys(c).map(function(f) {
 			if( f != "." && f != ".." && c[f].isDir) { return f + "/" }
 			else { return f }
-		}).join("\t")
+		})
 
 		return s
 	},
@@ -89,7 +59,8 @@ let FileSystem = {
 	},
 
 	touch(path) {
-		let r = this.createFile(path, false)
+		let p = this.parsePath(path)
+		let r = this.createFile(p, false)
 		if(!r) {
 			return "\ntouch: " + path +": No such file or directory"
 		}
@@ -97,23 +68,45 @@ let FileSystem = {
 			console.log("file already exists")
 			//TODO: touch it
 		}
-		return "";
+		return true
 	},
 
 	// touch it, then make it a dir
 	mkdir(path) {
-		let d = this.createFile(path, true)
+		let p = this.parsePath(path)
+		if(this.exists(p)) {
+			return "mkdir: "+ path + ": File exists"
+		}
+
+		let pa = this.getParentDir(p)
+		if(!pa || !pa.isDir) {
+			return "mkdir: " + pa.path + ": Not a directory"
+		}
+
+		let d = this.createFile(p, true)
 		if(!d) {
 			return "mkdir: " + path +": No such file or directory"
 		}
-		if(d === true) {
-			return "mkdir: "+ path + ": File exists"
-			console.log("file already exists")
+
+		return true
+	},
+
+	rmdir(path) {
+		// check if path exists
+		let p = this.parsePath(path)
+		let f = this.exists(p)
+		if(!f) {
+			return "rmdir: " + path + ": No such file or directory"
 		}
-		else {
-			d.children = {".": null, "..": null}
+		if(!f.isDir) {
+			return "rmdir: " + path + ": Not a directory"
 		}
-		return "";
+
+		if(this.getChildren(p).length > 2) {
+			return "rmdir: " + path + ": Directory not empty"
+		}
+
+		return true
 	},
 
 	rm(path) {
@@ -125,6 +118,7 @@ let FileSystem = {
 			}
 			let c = this.getParentDir(p)
 			delete c.children[f.name]
+			return true
 		}
 	},
 
@@ -133,14 +127,14 @@ let FileSystem = {
 
 	// ------------------------------
 	// helpers
-	
+
 	// clean and separate the path
 	// takes a string, returns a Array
 	parsePath(path){
 		if(path === '') { return ["."] }
 		let p = path.split('/')
 		if(p[0] === '') {
-			p[0] = '/'	
+			p[0] = '/'
 		}
 		return p.filter(n => n !== "")
 	},
@@ -152,56 +146,94 @@ let FileSystem = {
 		}
 		return p1.concat(p2)
 	},
-	
+
 	// return the parent dir or false if invalid
 	getParentDir(p) {
-		if(!this.exists(p)) { return false }
 		if(p.length === 0) { return this.current }
-		else { 
-			return this.exists(p.slice(0, p.length-1)) 
+		else {
+			return this.exists(p.slice(0, p.length-1))
 		}
-	},
-	
-	// return the specified directory
-	// relative to the current directory
-	// as indicated by the value 
-	// of the next parameter
-	walk(current, next) {
-		if(!current || !next || !current.isDir || !current.children) { 
-			return false 
-		}
-		if(next === ".") { return current }
-		if(next === "..") {
-			if(current.path === []) {
-				// we are at the root
-				return current
-			}
-			else{
-				// we are not at the root; return this guy's parent
-				return this.getParentDir(current.path)
-			}
-		}
-		return current.children[next]
 	},
 
-	// take the path as a list
+	getChildren(path) {
+		let f = this.exists(path)
+		if(!f || !f.isDir) {
+			return false
+		}
+		let c = f.children
+		return Object.keys(c)
+	},
+
+	// accepts the path as a list (parsePath)
 	// if it exists, return (a reference to) it
 	// if it exists not, return false
-	// a .. a
-	exists(p) {
-		let n = false
-		if(!p || p.length === 0) { return this.current }
-		if(p[0] === "/") { // the path started with a /
-			n = this.root; 
-			p.shift()
-		}	
-		else { n = this.current }
+	exists(path) {
+		if(!path || path.length === 0) {
+			return this.current
+		}
+
+		let n = this.current
+		let p = path.slice()
+		if(path[0] === "/") {
+			n = this.root;
+			p.shift() // slice() to clone
+		}
 
 		for(let i = 0; i < p.length; i++) {
 			n = this.walk(n, p[i])
 			if(!n) { return false }
 		}
 		return n;
+	},
+
+	// accepts the path as an array, to makeDir (or not to MakeDir)
+	// return: the file if it is created, otherwise false
+	createFile(path, makeDir){
+		if(this.exists(path)) { return false } // double-check
+
+		let p = path.slice() // clone it
+		let fname = p.pop()
+		let dir = this.exists(p)
+		if(fname == "" || !dir || !dir.isDir) {
+			return false
+		}
+
+		let o = {
+			isDir: makeDir,
+			name:fname,
+			path: path
+		}
+
+		if(makeDir){
+			o.children = {".": null, "..": null}
+		}
+		dir.children[fname] = o
+		return o
+	},
+
+	// return the specified directory
+	// relative to the current directory
+	// as indicated by the value
+	// of the next parameter
+	walk(current, next) {
+		if(!current || !next || !current.isDir || !current.children) {
+			return false
+		}
+
+		if(next === ".") {
+			return current
+		}
+		if(next === "..") {
+			if(current.path === []) {
+				// we are at the root; don't go anywhere
+				return current
+			}
+			else{
+				// we are not at the root; go up
+				return this.getParentDir(current.path)
+			}
+		}
+		return current.children[next]
 	},
 
 	logFS() {

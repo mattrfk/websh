@@ -14,10 +14,10 @@ let T = {
 	failed: 0,
 
 	test(cmd, input, expected) {
-		let result = fs[cmd](input)	
+		let result = fs[cmd](input)
 		this.total++
 		out(cmd+ '(\'' + input + '\'):')
-		if(result === expected){
+		if(String(result) === expected){
 			out.green('pass')
 		} else {
 			this.failed++
@@ -36,37 +36,44 @@ function t(cmd, input, expected) {
 let fs = require('./fs.js')
 fs.init()
 
-t('ls', '', '.\t..')
-t('ls', '.', '.\t..')
-t('ls', '..', '.\t..')
-t('ls', '.././.././../.././.', '.\t..')
-t('ls', '//////../', '.\t..')
-t('ls', '/.', '.\t..')
-t('ls', '/.//////../.', '.\t..')
-t('ls', '////////', '.\t..')
-t('ls', './////..', '.\t..')
+t('ls', '', '.,..')
+t('ls', '.', '.,..')
+t('ls', '..', '.,..')
+t('ls', '.././.././../.././.', '.,..')
+t('ls', '//////../', '.,..')
+t('ls', '/.', '.,..')
+t('ls', '/.//////../.', '.,..')
+t('ls', '////////', '.,..')
+t('ls', './////..', '.,..')
 
 t('mkdir', '.', 'mkdir: .: File exists')
 t('mkdir', '..', 'mkdir: ..: File exists')
-t('mkdir', 'a', '')
+t('mkdir', 'a', 'true')
 t('mkdir', 'a', 'mkdir: a: File exists')
-t('mkdir', 'a/b', '')
-t('mkdir', 'a/b/c', '')
-t('mkdir', 'a/b/d', '')
+t('mkdir', 'a/b', 'true')
+t('mkdir', 'a/b/c', 'true')
+t('mkdir', 'a/b/d', 'true')
 
-t('ls', '..', '.\t..\ta/')
-t('ls', 'a', '.\t..\tb/')
-t('ls', 'a/../a', '.\t..\tb/')
-t('ls', 'a/b', '.\t..\tc/\td/')
-t('ls', 'a/b/../b', '.\t..\tc/\td/')
-t('ls', 'a/b/../b/../b/../b', '.\t..\tc/\td/')
-t('ls', 'a/b/../../a/b', '.\t..\tc/\td/')
+t('touch', 'f', 'true')
+t('mkdir', 'f/a', 'mkdir: f: Not a directory')
+
+t('ls', '..', '.,..,a/,f')
+t('ls', 'a', '.,..,b/')
+t('ls', 'a/../a', '.,..,b/')
+t('ls', 'a/b', '.,..,c/,d/')
+t('ls', 'a/b/../b', '.,..,c/,d/')
+t('ls', 'a/b/../b/../b/../b', '.,..,c/,d/')
+t('ls', 'a/b/../../a/b', '.,..,c/,d/')
+
+t('rmdir', 'foo', 'rmdir: foo: No such file or directory')
+t('rmdir', 'foo/bar', 'rmdir: foo/bar: No such file or directory')
+t('rmdir', 'a', 'rmdir: a: Directory not empty')
 
 
 console.log('----------------')
 console.log(T.total + ' tests run')
 if(T.failed > 0) {
-	out.red(test.failed + " failed")
+	out.red(T.failed + " failed")
 }
 else {
 	out.green("all passed")

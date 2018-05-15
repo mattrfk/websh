@@ -1,7 +1,4 @@
 // Browser terminal for ESOS (JSOS)
-//
-// TODO arrow keys for command memory
-// 			stored in a file?
 let t
 let lineleader = 'websh$ '
 
@@ -11,14 +8,13 @@ FS.init()
 
 let commands = {
 	echo(args) {
-		let v = "something went very wrong."
+		let v
 		if (typeof args === 'string' || args instanceof String){
 			v = args
 		} else {
-			let v = help.cleanArgs(args).reduce((s, a) => s + a + ' ', '')
+			v = args.reduce((s, a) => s + a + ' ', '')
 			v = v.substring(0, v.length-1) // oh noooo
 		}
-		t.value += '\n'
 		t.write(v)
 	},
 
@@ -26,7 +22,6 @@ let commands = {
 	},
 
 	ls(args) {
-		args = help.cleanArgs(args)
 		if(args.length === 0) { args = [""] }
 		args.forEach(a => t.write(FS.ls(a)))
 	},
@@ -36,22 +31,18 @@ let commands = {
 	},
 
 	touch(args) {
-		args = help.cleanArgs(args)
 		args.forEach(a => t.write(FS.touch(a)))
 	},
 
 	rm(args) {
-		args = help.cleanArgs(args)
 		args.forEach(a => t.write(FS.rm(a)))
 	},
 
 	mkdir(args) {
-		args = help.cleanArgs(args)
 		args.forEach(a => t.write(FS.mkdir(a)))
 	},
 
 	rmdir(args) {
-		args = help.cleanArgs(args)
 		args.forEach(a => t.write(FS.rmdir(a)))
 	},
 
@@ -110,7 +101,7 @@ let commands = {
 	woman(args) {
 		t.write('no, just a computer')
 	},
-}
+} // end commands
 
 window.onload = function() {
 	t = document.getElementById('shell')
@@ -164,7 +155,7 @@ let processKeyPress = function(event) {
 			// do nothing...
 		}
 		else if(typeof f === 'function'){
-			f(args)
+			f(help.cleanArgs(args))
 		}
 		else {
 			commands.echo(args[0] + ": command not found.")

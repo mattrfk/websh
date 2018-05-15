@@ -69,6 +69,8 @@ t('rmdir', 'foo', 'rmdir: foo: No such file or directory')
 t('rmdir', 'foo/bar', 'rmdir: foo/bar: No such file or directory')
 t('rmdir', 'a', 'rmdir: a: Directory not empty')
 
+t('pwd', '', '/')
+
 
 console.log('----------------')
 console.log(T.total + ' tests run')

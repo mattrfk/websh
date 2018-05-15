@@ -1,26 +1,5 @@
-// - expose "API"
-// - timestamps
-// - validate filesystem?
-//
-//
-// {"isDir":true,
-// 	"name":"",
-// 	"children": {
-// 		".": null,
-// 		"..":null,
-// 		"c": {
-// 			"isDir":true,
-// 			"name":"c",
-// 			"children":{
-// 				".":null,
-// 				"..":""}
-// 		}}}
-
 "use strict";
 let FileSystem = {
-	// attributes of a file
-	// isDir: boolean
-	// content: object (or string?)
 	root: {}, // this describes the fs
 	current: undefined,
 
@@ -58,7 +37,7 @@ let FileSystem = {
 	},
 
 	pwd() {
-		this.getCurrentPath()
+		return '/' + this.current.path
 	},
 
 	touch(path) {

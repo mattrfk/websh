@@ -23,7 +23,6 @@ let commands = {
 	},
 
 	'>>': function(args) {
-
 	},
 
 	ls(args) {
@@ -33,7 +32,7 @@ let commands = {
 	},
 
 	pwd(args) {
-		t.write(FS.current.getPath())
+		t.write(FS.pwd())
 	},
 
 	touch(args) {

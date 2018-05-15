@@ -6,7 +6,7 @@ For learning.
 Testing: node tests.js
 
 * terminal.js: the browser interface
-* fs.js: the filesystem simulation
+* fs.js: the filesystem emulation
 	* Interface
 		* init(filesystem)
 		* ls(path)
@@ -25,3 +25,7 @@ Testing: node tests.js
 
 TODO
 	roll walk into exists
+	'>>'
+	cat
+	pipe
+	arrow keys, memory

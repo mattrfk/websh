@@ -104,7 +104,19 @@ let FileSystem = {
 		}
 	},
 
-	cd() {},
+	cd(path) {
+		let p = this.parsePath(path)
+		let f = this.exists(p)
+		if(!f) {
+			return "cd: " + path + ": No such file or directory"
+		}
+		if(!f.isDir) {
+			return "cd: " + path + ": Not a directory"
+		}
+
+		this.current = f
+		return true
+	},
 
 
 	// ------------------------------
@@ -150,8 +162,11 @@ let FileSystem = {
 	// if it exists, return (a reference to) it
 	// if it exists not, return false
 	exists(path) {
-		if(!path || path.length === 0) {
+		if(!path) {
 			return this.current
+		}
+		if(path.length === 0) {
+			return this.root
 		}
 
 		let n = this.current
@@ -206,7 +221,7 @@ let FileSystem = {
 			return current
 		}
 		if(next === "..") {
-			if(current.path === []) {
+			if(current.path.length === 0) {
 				// we are at the root; don't go anywhere
 				return current
 			}

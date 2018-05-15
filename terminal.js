@@ -47,7 +47,7 @@ let commands = {
 	},
 
 	cd(args) {
-		t.write('')
+		t.write(FS.cd(args.shift())) // only use the 1st arg
 	},
 	cat(args) {
 		t.write('meow')

@@ -69,7 +69,14 @@ t('rmdir', 'foo', 'rmdir: foo: No such file or directory')
 t('rmdir', 'foo/bar', 'rmdir: foo/bar: No such file or directory')
 t('rmdir', 'a', 'rmdir: a: Directory not empty')
 
+t('cd', 'a', 'true')
+t('ls', '', '.\t..\tb/')
+t('ls', '..', '.\t..\ta/\tf')
+t('pwd', '', '/a')
+
+t('cd', '..', 'true')
 t('pwd', '', '/')
+
 
 
 console.log('----------------')

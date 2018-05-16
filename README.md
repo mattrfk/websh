@@ -1,6 +1,9 @@
 _What?_
+
 A terminal simulator.
+
 _Why?_
+
 For learning.
 
 Testing: node tests.js
@@ -24,8 +27,5 @@ Testing: node tests.js
 		* exists(P)
 
 TODO
-	roll walk into exists
-	'>>'
-	cat
 	pipe
 	arrow keys, memory

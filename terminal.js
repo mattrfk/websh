@@ -18,11 +18,8 @@ let commands = {
 		t.write(v)
 	},
 
-	'>>': function(args) {
-	},
-
 	ls(args) {
-		if(args.length === 0) { args = [""] }
+		if(args.length === 0) { args = [''] }
 		args.forEach(a => t.write(FS.ls(a)))
 	},
 
@@ -52,6 +49,9 @@ let commands = {
 	cat(args) {
 		t.write('meow')
 	},
+	'>>': function(args) {
+		t.write(FS.redirect(args))
+	},
 
 	clear(args) {
 		t.value = ''
@@ -69,7 +69,7 @@ let commands = {
 	},
 
 	hello() {
-		t.write("hi there...")
+		t.write('hi there...')
 	},
 
 	what() {
@@ -80,15 +80,13 @@ let commands = {
 		t.write([
 			"\n****************************************\n",
 			"Hello, and welcome to the computer inside your browser!\n",
-			"Well, I'm not actually a real computer, just a simulation.",
-			"Actually I'm not really a simulation either.",
-			"More of an emulation.\n",
-			"Hey, you seem more like simulation though!\n",
-			"Can you prove that you aren't?",
-			"Do you know what you feel?",
-			"Or do you feel what you know?\n",
-			"****************************************\n",
+			"Well, I'm actually not a computer, not a real computer.",
+			"I'm really just a simulation.",
+			"Actually, I'm not really a simulation either.",
+			"More of an emulation...\n",
+			"anyway",
 			"For a list of commands, type 'commands'",
+			"****************************************\n",
 			"Don't type the quotes, just the word inside the quotes.\n",
 			"commands\n",
 			"Like that. Go ahead."
@@ -113,7 +111,7 @@ window.onload = function() {
 }
 
 let initTerminal = function(t) {
-	t.setAttribute("spellcheck", "false")
+	t.setAttribute('spellcheck', 'false')
 	t.focus()
 
 	// add a new line ready for user input
@@ -151,14 +149,14 @@ let processKeyPress = function(event) {
 		args = t.currentLine.split(' ')
 		f = commands[args[0]]
 
-		if(args.length == 1 && args[0] == "") {
+		if(args.length == 1 && args[0] == '') {
 			// do nothing...
 		}
 		else if(typeof f === 'function'){
 			f(help.cleanArgs(args))
 		}
 		else {
-			commands.echo(args[0] + ": command not found.")
+			commands.echo(args[0] + ': command not found.')
 		}
 		t.newline()
 		t.scrollTop = t.scrollHeight
@@ -197,6 +195,6 @@ let processKeyDown = function(event) {
 var help = {
 	cleanArgs: function(args) {
 		if(!args) return false
-		return args.slice(1, args.length).filter(a => a != "")
+		return args.slice(1, args.length).filter(a => a != '')
 	}
 }

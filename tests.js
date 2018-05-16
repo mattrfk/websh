@@ -77,6 +77,10 @@ t('pwd', '', '/a')
 t('cd', '..', 'true')
 t('pwd', '', '/')
 
+t('cat', 'a', 'cat: a: Is a directory')
+t('cat', 'f', '')
+t('appendToFile', 'f', 'Plump buck Mulligan')
+
 
 
 console.log('----------------')

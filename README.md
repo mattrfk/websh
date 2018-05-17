@@ -1,31 +1,22 @@
 _What?_
 
-A terminal simulator.
+A terminal simulator (emulator?).
 
 _Why?_
 
 For learning.
 
-Testing: node tests.js
+TODO:
+- repeated code in esh.js
+- modularize tests
+- arrow key history
+- pipes
 
-* terminal.js: the browser interface
-* fs.js: the filesystem emulation
-	* Interface
-		* init(filesystem)
-		* ls(path)
-		* pwd()
-		* touch(path)
-		* mkdir(path)
-		* rmdir(path)
-		*	rm(path)
-		* cd(path)
-	* Internal
-		* createFile(pathString, isDir?)
-		* parsePath(pathString) ->
-		* join(P1, P2) -> P1/P2
-		* getParentDir(P)
-		* exists(P)
+BUGS:
+- cat f f, where f is empty file produces 2 extraneous newlines
+- mkdir a; cd a; touch f: f is created in ../a
 
-TODO
-	pipe
-	arrow keys, memory
+NOTES:
+Debugging node with chrome inspector:
+node --inspect --inspect-brk server.js
+in chrome, go to chrome://inspect/#devices

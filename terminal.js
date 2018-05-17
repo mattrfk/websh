@@ -1,105 +1,9 @@
+"use strict"
 // Browser terminal for ESOS (JSOS)
 let t
-let lineleader = 'websh$ '
+let lineleader = 'esh$ '
 
-//var commands = Object.create(OS.commands)
-let FS = FileSystem
-FS.init()
-
-let commands = {
-	echo(args) {
-		let v
-		if (typeof args === 'string' || args instanceof String){
-			v = args
-		} else {
-			v = args.reduce((s, a) => s + a + ' ', '')
-			v = v.substring(0, v.length-1) // oh noooo
-		}
-		t.write(v)
-	},
-
-	ls(args) {
-		if(args.length === 0) { args = [''] }
-		args.forEach(a => t.write(FS.ls(a)))
-	},
-
-	pwd(args) {
-		t.write(FS.pwd())
-	},
-
-	touch(args) {
-		args.forEach(a => t.write(FS.touch(a)))
-	},
-
-	rm(args) {
-		args.forEach(a => t.write(FS.rm(a)))
-	},
-
-	mkdir(args) {
-		args.forEach(a => t.write(FS.mkdir(a)))
-	},
-
-	rmdir(args) {
-		args.forEach(a => t.write(FS.rmdir(a)))
-	},
-
-	cd(args) {
-		t.write(FS.cd(args.shift())) // only use the 1st arg
-	},
-	cat(args) {
-		t.write('meow')
-	},
-	'>>': function(args) {
-		t.write(FS.redirect(args))
-	},
-
-	clear(args) {
-		t.value = ''
-		event.stopPropagation()
-	},
-
-	who(args) {
-		t.write('Just you for now.')
-	},
-
-	commands(args) {
-		t.value += '\nThis system knows the following words:\n'
-		names = Object.getOwnPropertyNames(commands)
-		t.write(names, end='\n')
-	},
-
-	hello() {
-		t.write('hi there...')
-	},
-
-	what() {
-		t.write('more like who')
-	},
-
-	help(args) {
-		t.write([
-			"\n****************************************\n",
-			"Hello, and welcome to the computer inside your browser!\n",
-			"Well, I'm actually not a computer, not a real computer.",
-			"I'm really just a simulation.",
-			"Actually, I'm not really a simulation either.",
-			"More of an emulation...\n",
-			"anyway",
-			"For a list of commands, type 'commands'",
-			"****************************************\n",
-			"Don't type the quotes, just the word inside the quotes.\n",
-			"commands\n",
-			"Like that. Go ahead."
-		], end='\n')
-	},
-
-	man(args) {
-		t.write('woman')
-	},
-	woman(args) {
-		t.write('no, just a computer')
-	},
-} // end commands
+let esh = Esh()
 
 window.onload = function() {
 	t = document.getElementById('shell')
@@ -121,12 +25,7 @@ let initTerminal = function(t) {
 
 	t.write = function(lines, lead='\n') {
 		if(!lines) {return}
-		if(typeof(lines) === 'string') {
-			t.value += lead + lines
-		}
-		else if (typeof lines[Symbol.iterator] === 'function'){
-			lines.map(l => t.value += lead + l)
-		}
+		t.value += lead + lines
 	}
 
 	Object.defineProperty(t, 'currentLine', {
@@ -143,21 +42,11 @@ let initTerminal = function(t) {
 }
 
 let processKeyPress = function(event) {
+
 	// ENTER: try to run the command
 	if(event.keyCode == 13) {
-
-		args = t.currentLine.split(' ')
-		f = commands[args[0]]
-
-		if(args.length == 1 && args[0] == '') {
-			// do nothing...
-		}
-		else if(typeof f === 'function'){
-			f(help.cleanArgs(args))
-		}
-		else {
-			commands.echo(args[0] + ': command not found.')
-		}
+		let output = esh.receive_input(t.currentLine)
+		t.write(String(output))
 		t.newline()
 		t.scrollTop = t.scrollHeight
 		return false
@@ -189,12 +78,5 @@ let processKeyDown = function(event) {
 		t.selectionStart < t.textLength - t.currentLine.length) {
 			return false
 		}
-	}
-}
-
-var help = {
-	cleanArgs: function(args) {
-		if(!args) return false
-		return args.slice(1, args.length).filter(a => a != '')
 	}
 }

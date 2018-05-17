@@ -33,8 +33,8 @@ function t(cmd, input, expected) {
 	T.test(cmd, input, expected)
 }
 
-let fs = require('./fs.js')
-fs.init()
+let FS = require('./fs.js')
+fs = FS()
 
 t('ls', '', '.\t..')
 t('ls', '.', '.\t..')
@@ -48,13 +48,13 @@ t('ls', './////..', '.\t..')
 
 t('mkdir', '.', 'mkdir: .: File exists')
 t('mkdir', '..', 'mkdir: ..: File exists')
-t('mkdir', 'a', 'true')
+t('mkdir', 'a', '')
 t('mkdir', 'a', 'mkdir: a: File exists')
-t('mkdir', 'a/b', 'true')
-t('mkdir', 'a/b/c', 'true')
-t('mkdir', 'a/b/d', 'true')
+t('mkdir', 'a/b', '')
+t('mkdir', 'a/b/c', '')
+t('mkdir', 'a/b/d', '')
 
-t('touch', 'f', 'true')
+t('touch', 'f', '')
 t('mkdir', 'f/a', 'mkdir: f: Not a directory')
 
 t('ls', '..', '.\t..\ta/\tf')
@@ -69,17 +69,19 @@ t('rmdir', 'foo', 'rmdir: foo: No such file or directory')
 t('rmdir', 'foo/bar', 'rmdir: foo/bar: No such file or directory')
 t('rmdir', 'a', 'rmdir: a: Directory not empty')
 
-t('cd', 'a', 'true')
+t('cd', 'a', '')
 t('ls', '', '.\t..\tb/')
 t('ls', '..', '.\t..\ta/\tf')
 t('pwd', '', '/a')
 
-t('cd', '..', 'true')
+t('cd', '..', '')
 t('pwd', '', '/')
 
 t('cat', 'a', 'cat: a: Is a directory')
 t('cat', 'f', '')
-t('appendToFile', 'f', 'Plump buck Mulligan')
+t('appendToFile', 'f', '')
+fs.appendToFile('f', 'Stately, plump Buck Mulligan')
+t('cat', 'f', 'Stately, plump Buck Mulligan')
 
 
 

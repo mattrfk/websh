@@ -26,6 +26,15 @@ const Command = (input) => {
   }
 }
 
+const h = function(f, args) {
+    let r = ''
+    for(let i = 0; i < args.length; i++) {
+      r += f(args[i])
+      if(i < args.length-1) { r += '\n' }
+    }
+    return r
+  }
+
 const Esh = () => {
   function processCommand(cmd) {
     let out = ''
@@ -57,16 +66,6 @@ const Esh = () => {
 
 let fs = FS()
 let commands = {
-	// echo(args) {
-	// 	let v
-	// 	if (typeof args === 'string' || args instanceof String){
-	// 		v = args
-	// 	} else {
-	// 		v = args.reduce((s, a) => s + a + ' ', '')
-	// 		v = v.substring(0, v.length-1) // oh noooo
-	// 	}
-	// 	t.write(v)
-	// },
 
   echo(args) {
   	let v
@@ -81,76 +80,36 @@ let commands = {
 
 	ls(args) {
 		if(args.length === 0) { args = [''] }
-    let r = ''
-    for(let i = 0; i < args.length; i++) {
-      r += fs.ls(args[i])
-      if(i < args.length-1) { r += '\n' }
-    }
-    return r
+    return h(fs.ls, args)
 	},
 
 	pwd(args) {
     if(args.length === 0) { args = [''] }
-    let r = ''
-    for(let i = 0; i < args.length; i++) {
-      r += fs.pwd(args[i])
-      if(i < args.length-1) { r += '\n' }
-    }
-    return r
+    return h(fs.pwd, args)
 	},
 
 	touch(args) {
-    let r = ''
-    for(let i = 0; i < args.length; i++) {
-      r += fs.touch(args[i])
-      if(i < args.length-1) { r += '\n' }
-    }
-    return r
+    return h(fs.touch, args)
 	},
 
 	rm(args) {
-    let r = ''
-    for(let i = 0; i < args.length; i++) {
-      r += fs.rm(args[i])
-      if(i < args.length-1) { r += '\n' }
-    }
-    return r
+    return h(fs.rm, args)
 	},
 
 	mkdir(args) {
-    let r = ''
-    for(let i = 0; i < args.length; i++) {
-      r += fs.mkdir(args[i])
-      if(i < args.length-1) { r += '\n' }
-    }
-    return r
+    return h(fs.mkdir, args)
 	},
 
 	rmdir(args) {
-    let r = ''
-    for(let i = 0; i < args.length; i++) {
-      r += fs.rmdir(args[i])
-      if(i < args.length-1) { r += '\n' }
-    }
-    return r
+    return h(fs.rmdir, args)
 	},
 
 	cd(args) {
-    let r = ''
-    for(let i = 0; i < args.length; i++) {
-      r += fs.cd(args[i])
-      if(i < args.length-1) { r += '\n' }
-    }
-    return r
+    return h(fs.cd, args)
 	},
 
 	cat(args) {
-    let r = ''
-    for(let i = 0; i < args.length; i++) {
-      r += fs.cat(args[i])
-      if(i < args.length-1) { r += '\n' }
-    }
-    return r
+    return h(fs.cat, args)
 	},
 
 	'>>': function(args) {

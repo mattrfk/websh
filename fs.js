@@ -249,6 +249,8 @@ const FS = (f={}) => {
 
 			if(!f.content) {
 				f.content = ''
+			} else {
+				f.content += '\n'
 			}
 			f.content += content
 			return ''

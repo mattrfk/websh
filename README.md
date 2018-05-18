@@ -7,9 +7,10 @@ _Why?_
 For learning.
 
 TODO:
-- repeated code in esh.js
+- command flags
 - modularize tests
 - arrow key history
+	- write to file
 - pipes
 
 BUGS:

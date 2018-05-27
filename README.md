@@ -1,21 +1,4 @@
-_What?_
-
 A terminal simulator (emulator?).
-
-_Why?_
-
-For learning.
-
-TODO:
-- command flags
-- modularize tests
-- arrow key history
-	- write to file
-- pipes
-
-BUGS:
-- cat f f, where f is empty file produces 2 extraneous newlines
-- mkdir a; cd a; touch f: f is created in ../a
 
 NOTES:
 Debugging node with chrome inspector:

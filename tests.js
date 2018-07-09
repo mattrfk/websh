@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 // important stuff
 function out(msg) {
 	process.stdout.write(msg)

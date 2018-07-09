@@ -144,19 +144,9 @@ let commands = {
 
 	help(args) {
 		t.write([
-			"\n****************************************\n",
-			"Hello, and welcome to the computer inside your browser!\n",
-			"Well, I'm actually not a computer, not a real computer.",
-			"I'm really just a simulation.",
-			"Actually, I'm not really a simulation either.",
-			"More of an emulation...\n",
-			"anyway",
-			"For a list of commands, type 'commands'",
-			"****************************************\n",
-			"Don't type the quotes, just the word inside the quotes.\n",
-			"commands\n",
-			"Like that. Go ahead."
-		], end='\n')
+			"Hello.\n",
+			"I am a computer.\n",
+		], '\n')
 	},
 
 	man(args) {

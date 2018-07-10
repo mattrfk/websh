@@ -11,7 +11,7 @@ window.onload = function() {
 
 	window.onkeypress = processKeyPress
 	window.onkeydown = processKeyDown
-	t.newline()
+	t.printLeader()
 }
 
 let initTerminal = function(t) {
@@ -19,7 +19,7 @@ let initTerminal = function(t) {
 	t.focus()
 
 	// add a new line ready for user input
-	t.newline = function(lead='\n') {
+	t.printLeader = function(lead='\n') {
 		t.value += lead + lineleader
 	}
 
@@ -47,7 +47,7 @@ let processKeyPress = function(event) {
 	if(event.keyCode == 13) {
 		let output = esh.receive_input(t.currentLine)
 		t.write(String(output))
-		t.newline()
+		t.printLeader()
 		t.scrollTop = t.scrollHeight
 		return false
 	}

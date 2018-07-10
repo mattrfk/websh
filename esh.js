@@ -1,18 +1,21 @@
 "use strict"
 
-// take a string and turn it into something I can use
-const Command = (input) => {
+let fs = FS()
+
+// take a string from user input
+// separate out each command-argument component
+// return a tree-structure 
+function parse(input) {
   let args = []
-  let flags = []
-  let command = ''
   let next = false
+	let command = ''
   if(input.length > 0) {
     command = input[0]
   }
 
   for(let i = 1; i < input.length; i++ ) {
     if(input[i] === '>>') {
-      next = Command(input.slice(i, input.length))
+      next = parse(input.slice(i, input.length))
       break
     }
     args.push(input[i])
@@ -20,7 +23,6 @@ const Command = (input) => {
 
   return {
     command: command,
-    flags: flags,
     args: args,
     next: next
   }
@@ -33,10 +35,11 @@ const h = function(f, args) {
       if(i < args.length-1) { r += '\n' }
     }
     return r
-  }
+}
 
 const Esh = () => {
   function processCommand(cmd) {
+		console.log(cmd)
     let out = ''
     let f = commands[cmd.command]
     if(typeof f === 'function') {
@@ -57,16 +60,14 @@ const Esh = () => {
 
   return {
     receive_input(input) {
-      if(input === '') { return input }
-      let cmd = Command(input.trim().split(' '))
+      if(input === '') { return '' }
+      let cmd = parse(input.trim().split(' '))
       return processCommand(cmd);
     }
   }
 }
 
-let fs = FS()
 let commands = {
-
   echo(args) {
   	let v
   	if (typeof args === 'string' || args instanceof String){
@@ -121,7 +122,7 @@ let commands = {
 
 	clear(args) {
 		t.value = ''
-		event.stopPropagation()
+		//event.stopPropagation()
     return ''
 	},
 

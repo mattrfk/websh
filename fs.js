@@ -26,9 +26,10 @@ const FS = (f={}) => {
 		else { return exists(p.slice(0, p.length-1)) }
 	}
 
+
 	// join two paths
 	function join(p1, p2) {
-		if(Object.prototype.toString.call(p2) === '[object String]') { // srsly
+		if(isString(p2)) {
 			p2 = [p2]
 		}
 		return p1.concat(p2)

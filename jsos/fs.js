@@ -26,7 +26,6 @@ const FS = (f={}) => {
 		else { return exists(p.slice(0, p.length-1)) }
 	}
 
-
 	// join two paths
 	function join(p1, p2) {
 		if(isString(p2)) {
@@ -113,13 +112,19 @@ const FS = (f={}) => {
 	}
 
 	// the interface
+	// TODO: getFile(path)
+	// eg cat(file) 
 	return {
-		ls(path) {
+		getFile(path) {
 			let p = parsePath(path)
 			let f = exists(p)
 			if(!f) {
-				return 'ls: ' + path + ': No such file or directory'
+				throw new E('No such file or directory')
 			}
+			return f
+		},
+
+		ls(file) {
 			if(!f.isDir) {
 				return f.name
 			}
@@ -221,7 +226,6 @@ const FS = (f={}) => {
 			return ''
 		},
 
-		// TODO: these don't really belong in the FS
 		cat(path) {
 			let p = parsePath(path)
 			let f = exists(p)

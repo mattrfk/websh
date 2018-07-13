@@ -2,11 +2,30 @@
 
 let fs = FS()
 
+
+
 // take a string from user input
 // separate out each command-argument component
 // return a tree-structure 
+// parse("ls") -> ls
+// parse("ls -l") -> ["ls, "-l"]
+// parse("ls -l | sort -r") -> [["ls, "-l"], ["sort", "-r"]]
+//
+// ls | cat (cat receives a "file")
+// ls | cat file (only cats the file)
+// cat file1 file2 (both)
 function parse(input) {
-  let args = []
+	function parseCmd(i) { 
+		let flags = []
+		let args = []
+		let cmd = ''
+		return {
+			flags: flags,
+			args: args,
+			cmd: cmd,
+		}
+	}
+
   let next = false
 	let command = ''
   if(input.length > 0) {
@@ -28,16 +47,7 @@ function parse(input) {
   }
 }
 
-const h = function(f, args) {
-    let r = ''
-    for(let i = 0; i < args.length; i++) {
-      r += f(args[i])
-      if(i < args.length-1) { r += '\n' }
-    }
-    return r
-}
-
-const Esh = () => {
+function Esh() {
   function processCommand(cmd) {
 		console.log(cmd)
     let out = ''
@@ -58,13 +68,22 @@ const Esh = () => {
     }
   }
 
-  return {
+  return { // the esh API
     receive_input(input) {
       if(input === '') { return '' }
       let cmd = parse(input.trim().split(' '))
       return processCommand(cmd);
     }
   }
+}
+
+function h(f, args) {
+    let r = ''
+    for(let i = 0; i < args.length; i++) {
+      r += f(args[i])
+      if(i < args.length-1) { r += '\n' }
+    }
+    return r
 }
 
 let commands = {

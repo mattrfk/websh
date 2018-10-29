@@ -1,4 +1,4 @@
-"use strict"
+;"use strict";
 // Browser terminal for ESOS (JSOS)
 let t
 let lineleader = 'esh$ '

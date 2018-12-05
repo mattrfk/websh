@@ -38,6 +38,10 @@ const h = function(f, args) {
 }
 
 const Esh = () => {
+	const Interface = {
+		receive: receiveInput,
+	}
+
   function processCommand(cmd) {
 		console.log(cmd)
     let out = ''
@@ -58,13 +62,13 @@ const Esh = () => {
     }
   }
 
-  return {
-    receive_input(input) {
-      if(input === '') { return '' }
-      let cmd = parse(input.trim().split(' '))
-      return processCommand(cmd);
-    }
-  }
+	function receiveInput(input) {
+		if(input === '') { return '' }
+		let cmd = parse(input.trim().split(' '))
+		return processCommand(cmd);
+	}
+
+	return Interface
 }
 
 let commands = {

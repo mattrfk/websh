@@ -1,5 +1,6 @@
 ;"use strict";
 
+function l(s) { console.log(s) }
 
 // optionally initialize the filesystem with an existing object
 // the filesystem is represented in pure json
@@ -137,10 +138,19 @@ const FS = (f={}) => {
 		return f
 	}
 
-	function ls(file) {
-		if(!f.isDir) {
-			return f.name
+	function ls(path) {
+		let f = null
+		if(path === '') {
+			f = current
 		}
+		else {
+			let p = parsePath(path)
+			let f = exists(p)
+			if(!p.isDir) {
+				return f.name
+			}
+		}
+
 		let c = f.children
 		let s =  Object.keys(c).map(function(f) {
 			if( f != '.' && f != '..' && c[f].isDir) { return f + '/' }
@@ -172,6 +182,7 @@ const FS = (f={}) => {
 	// touch it, then make it a dir
 	function mkdir(path) {
 		let p = parsePath(path)
+		l("mkdir at path:" + p)
 		let f = exists(p)
 		if(f) {
 			return 'mkdir: '+ path + ': File exists'
@@ -275,7 +286,8 @@ const FS = (f={}) => {
 	}
 
 	function logFS() {
-		return JSON.stringify(current)
+		//return JSON.stringify(current)
+		return current
 	}
 
 	return Interface

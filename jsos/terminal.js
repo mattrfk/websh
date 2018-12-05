@@ -45,7 +45,7 @@ let processKeyPress = function(event) {
 
 	// ENTER: try to run the command
 	if(event.keyCode == 13) {
-		let output = esh.receive_input(t.currentLine)
+		let output = esh.receive(t.currentLine)
 		t.write(String(output))
 		t.printLeader()
 		t.scrollTop = t.scrollHeight

@@ -145,17 +145,18 @@ const FS = (f={}) => {
 		}
 		else {
 			let p = parsePath(path)
-			let f = exists(p)
-			if(!p.isDir) {
+			f = exists(p)
+			if(!f.isDir) {
 				return f.name
 			}
 		}
 
 		let c = f.children
 		let s =  Object.keys(c).map(function(f) {
-			if( f != '.' && f != '..' && c[f].isDir) { return f + '/' }
+			if( f !== '.' && f !== '..' && c[f].isDir) { return f + '/' }
 			else { return f }
 		}).join('\t')
+		//TODO: format the data further up
 
 		return s
 	}

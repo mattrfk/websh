@@ -1,5 +1,5 @@
 ;"use strict";
-// Browser terminal for ESOS (JSOS)
+
 let t
 let lineleader = 'esh$ '
 
@@ -14,7 +14,7 @@ window.onload = function() {
 	t.printLeader()
 }
 
-let initTerminal = function(t) {
+function initTerminal(t) {
 	t.setAttribute('spellcheck', 'false')
 	t.focus()
 
@@ -41,10 +41,11 @@ let initTerminal = function(t) {
 	})
 }
 
-let processKeyPress = function(event) {
+function processKeyPress(event) {
 
 	// ENTER: try to run the command
-	if(event.keyCode == 13) {
+	if(event.keyCode === 13) {
+		console.log("input: " + t.currentLine)
 		let output = esh.receive(t.currentLine)
 		t.write(String(output))
 		t.printLeader()
@@ -52,28 +53,30 @@ let processKeyPress = function(event) {
 		return false
 	}
 	else if (t.selectionEnd < t.value.length - t.currentLine.length) {
+		// put the cursor back into a valid spot
 		t.selectionEnd = t.selectionStart = t.textLength
 	}
 }
 
-let processKeyDown = function(event) {
+function processKeyDown(event) {
+
 	// delete
-	if(event.keyCode == 46) {
+	if(event.keyCode === 46) {
 		if(t.selectionEnd < t.textLength - t.currentLine.length) {
 			return false
 		}
 	}
 
 	// backspace
-	if(event.keyCode == 8) {
+	if(event.keyCode === 8) {
 		if(t.selectionEnd <= t.textLength - t.currentLine.length) {
 			return false
 		}
 	}
 
 	// delete or backspace
-	if(event.keyCode == 46 || event.keyCode == 8) {
-		if(t.currentLine == lineleader) { return false }
+	if(event.keyCode === 46 || event.keyCode === 8) {
+		if(t.currentLine === lineleader) { return false }
 		if(t.selectionStart != t.selectionEnd &&
 		t.selectionStart < t.textLength - t.currentLine.length) {
 			return false

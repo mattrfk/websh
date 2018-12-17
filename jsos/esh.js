@@ -2,48 +2,23 @@
 
 let fs = FS()
 
-// take a string from user input
-// separate out each command-argument component
-// return a tree-structure 
-function parse(input) {
-  let args = []
-  let next = false
-	let command = ''
-  if(input.length > 0) {
-    command = input[0]
-  }
-
-  for(let i = 1; i < input.length; i++ ) {
-    if(input[i] === '>>') {
-      next = parse(input.slice(i, input.length))
-      break
-    }
-    args.push(input[i])
-  }
-
-  return {
-    command: command,
-    args: args,
-    next: next
-  }
-}
-
-const h = function(f, args) {
-    let r = ''
-    for(let i = 0; i < args.length; i++) {
-      r += f(args[i])
-      if(i < args.length-1) { r += '\n' }
-    }
-    return r
-}
 
 const Esh = () => {
 	const Interface = {
 		receive: receiveInput,
 	}
 
+
+	function receiveInput(input) {
+		if(input === '') { 
+			return [] 
+		}
+		let cmd = parse(input.trim().split(' '))
+		return processCommand(cmd);
+	}
+
   function processCommand(cmd) {
-		console.log(cmd)
+		console.log("process command:", cmd)
     let out = ''
     let f = commands[cmd.command]
     if(typeof f === 'function') {
@@ -62,13 +37,38 @@ const Esh = () => {
     }
   }
 
-	function receiveInput(input) {
-		if(input === '') { return '' }
-		let cmd = parse(input.trim().split(' '))
-		return processCommand(cmd);
+	// take a string from user input
+	// separate out each command-argument component
+	// return a tree-structure 
+	function parse(input) {
+		let args = []
+		let next = false
+		let command = ''
+		if(input.length > 0) {
+			command = input[0]
+		}
+
+		for(let i = 1; i < input.length; i++ ) {
+			if(input[i] === '>>') {
+				next = parse(input.slice(i, input.length))
+				break
+			}
+			args.push(input[i])
+		}
+
+		return {
+			command: command,
+			args: args,
+			next: next
+		}
 	}
 
 	return Interface
+}
+
+// apply args to f
+function h(f, args) {
+		return f(args)
 }
 
 let commands = {
@@ -84,12 +84,16 @@ let commands = {
   },
 
 	ls(args) {
-		if(args.length === 0) { args = [''] }
-    return h(fs.ls, args)
+		console.log(args)
+		let path = ''
+		if(args.length > 0) {
+			path = args[0]
+		}
+
+    return h(fs.ls, path)
 	},
 
 	pwd(args) {
-    if(args.length === 0) { args = [''] }
     return h(fs.pwd, args)
 	},
 
@@ -102,7 +106,11 @@ let commands = {
 	},
 
 	mkdir(args) {
-    return h(fs.mkdir, args)
+		let path = ''
+		if(args.length > 0) {
+			path = args[0]
+		}
+    return h(fs.mkdir, path)
 	},
 
 	rmdir(args) {

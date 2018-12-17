@@ -124,7 +124,9 @@ const FS = (f={}) => {
 			} else {
 				n = n.children[p[i]]
 			}
-			if(!n) { return false }
+			if(!n) { 
+				return false 
+			}
 		}
 		return n;
 	}
@@ -140,6 +142,7 @@ const FS = (f={}) => {
 
 	function ls(path) {
 		let f = null
+		console.log("ls path: ", path)
 		if(path === '') {
 			f = current
 		}
@@ -152,11 +155,14 @@ const FS = (f={}) => {
 		}
 
 		let c = f.children
-		let s =  Object.keys(c).map(function(f) {
-			if( f !== '.' && f !== '..' && c[f].isDir) { return f + '/' }
-			else { return f }
+		let s =  Object.keys(c).map((f) => {
+			if( f !== '.' && f !== '..' && c[f].isDir) { 
+				return f + '/' 
+			}
+			else { 
+				return f 
+			}
 		}).join('\t')
-		//TODO: format the data further up
 
 		return s
 	}
@@ -167,6 +173,7 @@ const FS = (f={}) => {
 
 	function touch(path) {
 		let p = parsePath(path)
+
 		let f = exists(p)
 		if(f) {
 			f.timestamp = new Date()
